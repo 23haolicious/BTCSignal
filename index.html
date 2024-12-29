@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSI Signal Web App</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>BTC Signal Web App</h1>
+        <form method="POST">
+            <label for="candle_time">Choose Candle Time:</label>
+            <select id="candle_time" name="candle_time">
+                <option value="1h">1 Hour</option>
+                <option value="2h">2 Hours</option>
+                <option value="4h">4 Hours</option>
+            </select>
+
+            <label for="start_time">Start Date and Time:</label>
+            <input type="datetime-local" id="start_time" name="start_time" required>
+
+            <label for="end_time">End Date and Time:</label>
+            <input type="datetime-local" id="end_time" name="end_time" required>
+
+            <label for="budget">Budget (USD):</label>
+            <input type="number" id="budget" name="budget" step="0.01" value="1000" required>
+
+            <button type="submit">Get Signals</button>
+        </form>
+
+        {% if chart_url %}
+        <div class="chart-container">
+            <h2>Signals Chart</h2>
+            <img id="chart-image" src="data:image/png;base64,{{ chart_url }}" alt="Signals Chart">
+            <button id="fullscreen-button">Full Screen</button>
+        </div>
+        {% endif %}
+
+
+
+        {% if signals %}
+        <h2>Signals</h2>
+        <ul>
+            {% for signal in signals %}
+            <li>{{ signal }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if total_profit %}
+        <h3>Total Profit: ${{ total_profit }}</h3>
+        {% endif %}
+
+        {% if asset_to_sell %}
+        <h3>Asset to Sell: {{ asset_to_sell }}</h3>
+        {% endif %}
+    </div>
+<script>
+    document.getElementById('fullscreen-button').addEventListener('click', function () {
+        const chartImage = document.getElementById('chart-image');
+        if (chartImage.requestFullscreen) {
+            chartImage.requestFullscreen();
+        } else if (chartImage.webkitRequestFullscreen) { /* Safari */
+            chartImage.webkitRequestFullscreen();
+        } else if (chartImage.msRequestFullscreen) { /* IE11 */
+            chartImage.msRequestFullscreen();
+        }
+    });
+</script>
+
+</body>
+</html>
