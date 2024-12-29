@@ -14,8 +14,8 @@ import base64
 app = Flask(__name__)
 
 # Replace with your Binance API key and secret
-API_KEY = "XXX"
-API_SECRET = "XXX"
+API_KEY = "XXX-XXX-XXX-XXX-XXX-XXX-XXX-XXX"
+API_SECRET = "XXX-XXX-XXX-XXX-XXX--XXX-XXX"
 
 client = Client(API_KEY, API_SECRET)
 
