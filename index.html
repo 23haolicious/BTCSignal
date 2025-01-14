@@ -12,10 +12,15 @@
         <form method="POST">
             <label for="candle_time">Choose Candle Time:</label>
             <select id="candle_time" name="candle_time">
+                <option value="10m">10 Minutes</option>
+                <option value="15m">15 Minutes</option>
+                <option value="30m">30 Minutes</option>
+                <option value="45m">45 Minutes</option>
                 <option value="1h">1 Hour</option>
                 <option value="2h">2 Hours</option>
                 <option value="4h">4 Hours</option>
             </select>
+
 
             <label for="start_time">Start Date and Time:</label>
             <input type="datetime-local" id="start_time" name="start_time" required>
@@ -25,6 +30,12 @@
 
             <label for="budget">Budget (USD):</label>
             <input type="number" id="budget" name="budget" step="0.01" value="1000" required>
+
+            <label for="rsi_buy_condition">RSI BUY Condition (e.g. 30%):</label>
+            <input type="number" id="rsi_buy_condition" name="rsi_buy_condition" step="1" value="30" required>
+
+            <label for="sell_percentage">SELL Percentage (e.g. 1 for 1%):</label>
+            <input type="number" id="sell_percentage" name="sell_percentage" step="0.01" value="1" required>
 
             <button type="submit">Get Signals</button>
         </form>
@@ -52,9 +63,6 @@
         <h3>Total Profit: ${{ total_profit }}</h3>
         {% endif %}
 
-        {% if asset_to_sell %}
-        <h3>Asset to Sell: {{ asset_to_sell }}</h3>
-        {% endif %}
     </div>
 <script>
     document.getElementById('fullscreen-button').addEventListener('click', function () {
@@ -66,7 +74,7 @@
         } else if (chartImage.msRequestFullscreen) { /* IE11 */
             chartImage.msRequestFullscreen();
         }
-    });
+    });a
 </script>
 
 </body>
