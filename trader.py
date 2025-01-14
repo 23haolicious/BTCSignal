@@ -14,8 +14,8 @@ import base64
 app = Flask(__name__)
 
 # Replace with your Binance API key and secret
-API_KEY = "XXX-XXX-XXX-XXX-XXX-XXX-XXX-XXX"
-API_SECRET = "XXX-XXX-XXX-XXX-XXX--XXX-XXX"
+API_KEY = "XXXX-XXXXXX-XXXX-XXXX-XXXX"
+API_SECRET = "XXXX-XXXXXX-XXXX-XXXX-XXXX"
 
 client = Client(API_KEY, API_SECRET)
 
@@ -81,29 +81,40 @@ def index():
                 buy_signals = []
                 sell_signals = []
                 btc_owned = 0  # Track BTC owned based on the budget
+                rsi_buy_condition = float(request.form.get('rsi_buy_condition', 30))  # Default is 30
+                sell_percentage = float(request.form.get('sell_percentage', 1))  # Default is 1%
 
                 for index, row in df.iterrows():
-                    if state == "WAIT_BUY" and row['RSI'] <= 30:
+                    if state == "WAIT_BUY" and row['RSI'] <= rsi_buy_condition:
                         # Trigger a BUY signal
                         btc_owned = budget / row['close']  # Calculate BTC to buy
                         last_buy_price = row['close']
                         buy_signals.append((index, last_buy_price))
-                        signals.append(f"BUY Signal: {index} | Price: ${last_buy_price:.2f} | RSI: {row['RSI']:.2f}")
+                        signals.append(f"BUY Signal: {index} | Price: ${last_buy_price:,.2f} | RSI: {row['RSI']:,.2f}")
                         state = "WAIT_SELL"
 
-                    elif state == "WAIT_SELL" and row['RSI'] >= 70:
-                        if row['close'] > last_buy_price:
-                            # Trigger a SELL signal only if price > BUY price
+
+                    elif state == "WAIT_SELL":
+                        # Check if RSI >= 70 or the price is 1% greater than the last BUY price
+                        # if row['RSI'] >= 70 and row['close'] > last_buy_price:
+                        #     # SELL based on RSI >= 70
+                        #     last_sell_price = row['close']
+                        #     sell_signals.append((index, last_sell_price))
+                        #     profit = btc_owned * (last_sell_price - last_buy_price)  # Calculate profit
+                        #     total_profit += profit
+                        #     signals.append(
+                        #         f"SELL Signal (RSI): {index} | Price: ${last_sell_price:.2f} | Profit: ${profit:.2f}")
+                        #     state = "WAIT_BUY"
+
+                        if row['close'] >= last_buy_price * (1 + sell_percentage / 100):
+                            # SELL based on price being user-defined % greater than BUY price
                             last_sell_price = row['close']
                             sell_signals.append((index, last_sell_price))
                             profit = btc_owned * (last_sell_price - last_buy_price)  # Calculate profit
                             total_profit += profit
-                            signals.append(f"SELL Signal: {index} | Price: ${last_sell_price:.2f} | RSI: {row['RSI']:.2f} | Profit: ${profit:.2f}\n")
+                            signals.append(
+                                f"SELL Signal (Price): {index} | Price: ${last_sell_price:,.2f} | Profit: ${profit:,.2f}")
                             state = "WAIT_BUY"
-
-                # Check if there is an unsold asset
-                if state == "WAIT_SELL" and last_buy_price is not None:
-                    asset_to_sell = f"{btc_owned:.6f} BTC at ${last_buy_price:.2f}"
 
                 # Visualization
                 plt.figure(figsize=(25, 15))  # Increase figure size
@@ -138,8 +149,9 @@ def index():
         except Exception as e:
             signals.append(f"Error: {str(e)}")
 
-    return render_template('index.html', chart_url=chart_url, signals=signals, total_profit=total_profit, asset_to_sell=asset_to_sell)
+    formatted_total_profit = f"{total_profit:,.2f}"
+    return render_template('index.html', chart_url=chart_url, signals=signals, total_profit=formatted_total_profit)
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
